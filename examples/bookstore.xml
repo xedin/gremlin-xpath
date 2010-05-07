@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<bookstore>
+
+<book>
+  <title lang="eng">
+    Harry Potter
+    <price>100500</price>
+  </title>
+  <title lang="ru">Гарри Поттер</title>
+  <price>29.99</price>
+</book>
+
+<book>
+  <title lang="eng" local="true">Learning XML</title>
+  <price>39.95</price>
+</book>
+
+<owners>
+  <owner age="21">
+    <name>Pavel</name>
+  </owner>
+  <owner age="22">
+    <name>Vladimir</name>
+  </owner>
+</owners>
+
+</bookstore>
