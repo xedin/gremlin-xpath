@@ -14,29 +14,35 @@
 (defonce IN_EDGES  (PipesEnumHelper/IN_EDGES))
 (defonce OUT_EDGES (PipesEnumHelper/OUT_EDGES))
 
-(defmulti analize-step class)
+(defmulti step-token class)
 (defmulti analize-path class)
 (defmulti pipe-for-predicate class)
 
 (defmethod pipe-for-predicate CoreOperationEqual
   [operation]
-  (seq (.getArguments operation)))
+  (seq operation))
+
+(defn- get-axis [step]
+  (->> step .getAxis (Step/axisToString)))
+
+(defmulti pipe-for-step get-axis)
+
+(defmethod pipe-for-step "self" [_]
+  (IdentityPipe.))
+
+(defmethod pipe-for-step "child" [step]
+  (let [token (step-token (.getNodeTest step))]
+    (cond (= token "inV")  (EdgeVertexPipe. IN_VERTEX)
+          (= token "inE")  (VertexEdgePipe. IN_EDGES)
+          (= token "outV") (EdgeVertexPipe. OUT_VERTEX)
+          (= token "outE") (VertexEdgePipe. OUT_EDGES)
+          :else (throw (Exception. (str "Could not map 'child::" token "' to any of existing pipes."))))))
+
+(defmethod pipe-for-step "attribute" [step]
+  (PropertyPipe. (step-token (.getNodeTest step))))
 
 (defn- create-pipe [step]
-  (let [node-test (.getNodeTest step)
-        token (analize-step node-test)
-        step-axis (->> step .getAxis (Step/axisToString))
-        predicates (.getPredicates step)]
-    [(cond (= token "node") (IdentityPipe.)
-           (= token "inV")  (EdgeVertexPipe. IN_VERTEX)
-           (= token "inE")  (VertexEdgePipe. IN_EDGES)
-           (= token "outE") (VertexEdgePipe. OUT_EDGES)
-           (= token "outV") (EdgeVertexPipe. OUT_VERTEX)
-           :else (if (= step-axis "attribute")
-                   (PropertyPipe. token)
-                   (throw (Exception. (str "Could not map '" step-axis "::" token "' to any of existing pipes.")))))
-     (if-not (empty? predicates)
-       (map pipe-for-predicate (seq predicates)) '())]))
+  [(pipe-for-step step) (map pipe-for-predicate (seq (.getPredicates step)))])
 
 (defmethod analize-path LocationPath
   [expr]
@@ -50,13 +56,13 @@
   [expr]
   (println "ext func"))
 
-(defmethod analize-step NodeNameTest [node]
+(defmethod step-token NodeNameTest [node]
   (.. node getNodeName getName))
 
-(defmethod analize-step NodeTypeTest [node]
+(defmethod step-token NodeTypeTest [node]
   (->> node .getNodeType (NodeTypeTest/nodeTypeToString )))
 
-(defmethod analize-step ProcessingInstructionTest [node]
+(defmethod step-token ProcessingInstructionTest [node]
   ())
 
 (defonce graph (TinkerGraphFactory/createTinkerGraph))
@@ -65,6 +71,5 @@
 (defn parse [#^String xpath]
   (let [compiler (TreeCompiler.)
         path (Parser/parseExpression xpath compiler)
-        pipeline (analize-path path)]
-    pipeline))
+        pipeline (analize-path path)] pipeline))
 
