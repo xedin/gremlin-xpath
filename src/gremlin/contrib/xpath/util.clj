@@ -19,7 +19,6 @@
 (defn xpath-constant-value [constant]
   (let [str-value (str constant)
         num-value (InfoSetUtil/doubleValue str-value)]
-    (if (= (.isNaN num-value) true)
-      (skip-quotes str-value)
-      num-value)))
+    (if (true? (.isNaN num-value))
+      (skip-quotes str-value) num-value)))
 

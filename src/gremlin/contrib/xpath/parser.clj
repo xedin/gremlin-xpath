@@ -88,7 +88,7 @@
   (->> node .getNodeType (NodeTypeTest/nodeTypeToString)))
 
 (defmethod step-token ProcessingInstructionTest [node]
-  ())
+  '())
 
 (defonce graph (TinkerGraphFactory/createTinkerGraph))
 (defonce vertex (.getVertex graph 1))
