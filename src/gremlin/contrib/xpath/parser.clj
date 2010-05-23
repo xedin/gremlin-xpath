@@ -4,8 +4,7 @@
            [org.apache.commons.jxpath.ri Parser QName]
            [com.tinkerpop.pipes.serial.pgm EdgeVertexPipe VertexEdgePipe LabelFilterPipe PropertyFilterPipe PropertyPipe]
            [org.apache.commons.jxpath.ri.compiler TreeCompiler Path Expression Operation VariableReference Constant LocationPath ExpressionPath ExtensionFunction Step NodeNameTest  NodeTypeTest ProcessingInstructionTest CoreOperationEqual CoreOperationNotEqual]
-           [gremlin.contrib.xpath.helpers PipesEnumHelper]
-           [com.tinkerpop.blueprints.pgm.impls.tg TinkerGraphFactory]))
+           [gremlin.contrib.xpath.helpers PipesEnumHelper]))
 
 ;; gremlin pipes pgm enums
 (defonce IN_VERTEX  (PipesEnumHelper/IN_VERTEX))
@@ -33,7 +32,7 @@
                   (= expr-class VariableReference) :variable)
           :else (throw (Exception. "Could not determine expression type.")))))
 
-(defn pipe-for-operation-equal [arguments filter]
+(defn- pipe-for-operation-equal [arguments filter]
   (let [operand-one (first arguments)
         operand-two (last arguments)
         operand-one-type (expr-type operand-one)
@@ -90,15 +89,9 @@
 (defmethod step-token ProcessingInstructionTest [node]
   '())
 
-(defonce graph (TinkerGraphFactory/createTinkerGraph))
-(defonce vertex (.getVertex graph 1))
-
-(defn parse [#^String xpath]
+(defn compile-xpath [#^String xpath]
   (let [compiler (TreeCompiler.)
         path (Parser/parseExpression xpath compiler)
-        pipes (flatten (analize-path path))
-        pipeline (Pipeline. pipes)]
-    (.setStarts pipeline (.iterator (list vertex)))
-    (seq pipeline)))
-;;        pipeline (analize-path path)] pipeline))
+        pipes (flatten (analize-path path))]
+    (Pipeline. pipes)))
 

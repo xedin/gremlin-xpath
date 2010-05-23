@@ -1,0 +1,5 @@
+h1. Gremlin-xpath project born to compile XPath into Gremlin Pipes.
+
+_Note: Please download *gremlin-pipes-helpers.jar* and place it to your lib/ folder or code won't work..._
+
+Author: Pavel A. Yaskevich
