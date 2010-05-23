@@ -1,4 +1,4 @@
-(defproject xpath "0.1"
+(defproject gremlin-xpath "0.1"
   :description "Compiler from XPath to Gremlin Pipes."
   
   :dependencies [[org.clojure/clojure "1.1.0-master-SNAPSHOT"]
