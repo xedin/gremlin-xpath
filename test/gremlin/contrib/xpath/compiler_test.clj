@@ -24,3 +24,15 @@
       (is (= (.size results) 1))
       (is (= results '("josh"))))))
 
+(deftest and-operation-in-predicates-test
+  (let [pipeline (compile-xpath "./outE/inV[@name != 'vadas' and @name != 'lop']/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= (.size results) 1))
+      (is (= results '("josh")))))
+  (let [pipeline (compile-xpath "./outE[@label != 'created' and @label = 'knows']/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= (.size results) 2))
+      (is (= results '("vadas" "josh"))))))
+

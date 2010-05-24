@@ -3,7 +3,7 @@
   (:import [com.tinkerpop.pipes.serial IdentityPipe Pipeline]
            [org.apache.commons.jxpath.ri Parser QName]
            [com.tinkerpop.pipes.serial.pgm EdgeVertexPipe VertexEdgePipe LabelFilterPipe PropertyFilterPipe PropertyPipe]
-           [org.apache.commons.jxpath.ri.compiler TreeCompiler Path Expression Operation VariableReference Constant LocationPath ExpressionPath ExtensionFunction Step NodeNameTest  NodeTypeTest ProcessingInstructionTest CoreOperationEqual CoreOperationNotEqual]
+           [org.apache.commons.jxpath.ri.compiler TreeCompiler Path Expression Operation VariableReference Constant LocationPath ExpressionPath ExtensionFunction Step NodeNameTest  NodeTypeTest ProcessingInstructionTest CoreOperationEqual CoreOperationNotEqual CoreOperationAnd]
            [gremlin.contrib.xpath.helpers PipesEnumHelper]))
 
 ;; gremlin pipes pgm enums
@@ -54,6 +54,9 @@
 (defmethod pipe-for-predicate CoreOperationNotEqual [operation]
   (pipe-for-operation-equal (.getArguments operation) DISALLOW))
 
+(defmethod pipe-for-predicate CoreOperationAnd [operation]
+  (map pipe-for-predicate (.getArguments operation)))
+
 (defmethod pipe-for-step "self" [_]
   (IdentityPipe.))
 
@@ -94,4 +97,3 @@
         path (Parser/parseExpression xpath compiler)
         pipes (flatten (analize-path path))]
     (Pipeline. pipes)))
-
