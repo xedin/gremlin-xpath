@@ -3,7 +3,9 @@
   (:import [com.tinkerpop.pipes.serial IdentityPipe Pipeline]
            [org.apache.commons.jxpath.ri Parser QName]
            [com.tinkerpop.pipes.serial.pgm EdgeVertexPipe VertexEdgePipe LabelFilterPipe PropertyFilterPipe PropertyPipe]
-           [org.apache.commons.jxpath.ri.compiler TreeCompiler Path Expression Operation VariableReference Constant LocationPath ExpressionPath ExtensionFunction Step NodeNameTest  NodeTypeTest ProcessingInstructionTest CoreOperationEqual CoreOperationNotEqual CoreOperationAnd]
+           [org.apache.commons.jxpath.ri.compiler TreeCompiler Path Expression Operation VariableReference Constant]
+           [org.apache.commons.jxpath.ri.compiler LocationPath ExpressionPath CoreOperationEqual CoreOperationNotEqual CoreOperationAnd]
+           [org.apache.commons.jxpath.ri.compiler ExtensionFunction Step NodeNameTest  NodeTypeTest ProcessingInstructionTest]
            [gremlin.contrib.xpath.helpers PipesEnumHelper]))
 
 ;; gremlin pipes pgm enums

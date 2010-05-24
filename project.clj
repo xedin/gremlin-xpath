@@ -10,6 +10,8 @@
     
   :repositories {"maven-repository" "http://mvnrepository.com"
                  "tinkerpop-repository" "http://tinkerpop.com/maven2"}
+
+  :namespaces [gremlin.contrib.xpath]
   
   :source-path "src")
 
