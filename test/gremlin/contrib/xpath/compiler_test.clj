@@ -1,6 +1,6 @@
-(ns gremlin.contrib.xpath.parser-test
+(ns gremlin.contrib.xpath.compiler-test
   (:use [clojure.test]
-        [gremlin.contrib.xpath.parser])
+        [gremlin.contrib.xpath.compiler])
   (:import [com.tinkerpop.pipes.serial Pipeline]
            [com.tinkerpop.blueprints.pgm.impls.tg TinkerGraphFactory]))
 

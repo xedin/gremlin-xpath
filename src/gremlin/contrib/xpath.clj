@@ -1,6 +1,4 @@
 (ns gremlin.contrib.xpath
-  (:use [gremlin.contrib.xpath util parser]))
-
-(defn- parse-xpath-string [#^String xpath-line] ())
+  (:use [gremlin.contrib.xpath util compiler]))
 
 (defn compile-xpath [#^String xpath-line] ())

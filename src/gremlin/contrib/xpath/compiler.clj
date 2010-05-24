@@ -1,4 +1,4 @@
-(ns gremlin.contrib.xpath.parser
+(ns gremlin.contrib.xpath.compiler
   (:use [gremlin.contrib.xpath.util])
   (:import [com.tinkerpop.pipes.serial IdentityPipe Pipeline]
            [org.apache.commons.jxpath.ri Parser QName]
