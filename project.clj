@@ -1,7 +1,7 @@
 (defproject gremlin-xpath "0.1"
   :description "Compiler from XPath to Gremlin Pipes."
   
-  :dependencies [[org.clojure/clojure "1.1.0-master-SNAPSHOT"]
+  :dependencies [[org.clojure/clojure "1.1.0"]
                  [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
                  [commons-jxpath/commons-jxpath "1.3"]
                  [com.tinkerpop/pipes "0.1-SNAPSHOT"]]
