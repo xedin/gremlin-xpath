@@ -1,22 +1,15 @@
 (ns gremlin.contrib.xpath.compiler
-  (:use [gremlin.contrib.xpath.util])
+  (:use [gremlin.contrib.xpath.util]
+        [gremlin.contrib.xpath.enums])
   (:import [com.tinkerpop.pipes.serial IdentityPipe Pipeline]
            [org.apache.commons.jxpath.ri Parser QName]
+           [com.tinkerpop.pipes.serial.filter AndFilterPipe OrFilterPipe]
            [com.tinkerpop.pipes.serial.pgm EdgeVertexPipe VertexEdgePipe LabelFilterPipe PropertyFilterPipe PropertyPipe]
-           [org.apache.commons.jxpath.ri.compiler TreeCompiler Path Expression Operation VariableReference Constant]
-           [org.apache.commons.jxpath.ri.compiler LocationPath ExpressionPath CoreOperationEqual CoreOperationNotEqual CoreOperationAnd]
-           [org.apache.commons.jxpath.ri.compiler ExtensionFunction Step NodeNameTest  NodeTypeTest ProcessingInstructionTest]
-           [gremlin.contrib.xpath.helpers PipesEnumHelper]))
-
-;; gremlin pipes pgm enums
-(defonce IN_VERTEX  (PipesEnumHelper/IN_VERTEX))
-(defonce OUT_VERTEX (PipesEnumHelper/OUT_VERTEX))
-
-(defonce IN_EDGES  (PipesEnumHelper/IN_EDGES))
-(defonce OUT_EDGES (PipesEnumHelper/OUT_EDGES))
-
-(defonce ALLOW (PipesEnumHelper/ALLOW))
-(defonce DISALLOW (PipesEnumHelper/DISALLOW))
+           [org.apache.commons.jxpath.ri.compiler Path LocationPath ExpressionPath]
+           [org.apache.commons.jxpath.ri.compiler TreeCompiler Expression Operation VariableReference Constant]
+           [org.apache.commons.jxpath.ri.compiler CoreOperationEqual CoreOperationNotEqual CoreOperationAnd CoreOperationOr]
+           [org.apache.commons.jxpath.ri.compiler CoreOperationGreaterThan CoreOperationLessThan CoreOperationGreaterThanOrEqual CoreOperationLessThanOrEqual]
+           [org.apache.commons.jxpath.ri.compiler ExtensionFunction Step NodeNameTest  NodeTypeTest ProcessingInstructionTest]))
 
 (defmulti step-token class)
 (defmulti analize-path class)
@@ -34,7 +27,7 @@
                   (= expr-class VariableReference) :variable)
           :else (throw (Exception. "Could not determine expression type.")))))
 
-(defn- pipe-for-operation-equal [arguments filter]
+(defn- pipe-for-logic-operation [arguments filter]
   (let [operand-one (first arguments)
         operand-two (last arguments)
         operand-one-type (expr-type operand-one)
@@ -50,14 +43,32 @@
                   (PropertyFilterPipe. operand-one-token operand-two-value filter))))
           :else (throw (Exception. "not implemented yet.")))))
 
+;; EQUAL, NOT_EQUAL
 (defmethod pipe-for-predicate CoreOperationEqual [operation]
-  (pipe-for-operation-equal (.getArguments operation) ALLOW))
+  (pipe-for-logic-operation (.getArguments operation) EQUALS))
 
 (defmethod pipe-for-predicate CoreOperationNotEqual [operation]
-  (pipe-for-operation-equal (.getArguments operation) DISALLOW))
+  (pipe-for-logic-operation (.getArguments operation) NOT_EQUALS))
 
+;;  GREATER_THAN, GREATER_THAN_EQUAL, LESS_THAN, LESS_THEN_EQUAL
+(defmethod pipe-for-predicate CoreOperationGreaterThan [operation]
+  (pipe-for-logic-operation (.getArguments operation) GREATER_THAN))
+
+(defmethod pipe-for-predicate CoreOperationLessThan [operation]
+  (pipe-for-logic-operation (.getArguments operation) LESS_THAN))
+
+(defmethod pipe-for-predicate CoreOperationGreaterThanOrEqual [operation]
+  (pipe-for-logic-operation (.getArguments operation) GREATER_THAN_EQUAL))
+
+(defmethod pipe-for-predicate CoreOperationLessThanOrEqual [operation]
+  (pipe-for-logic-operation (.getArguments operation) LESS_THAN_EQUAL))
+
+;; AND & OR operations
 (defmethod pipe-for-predicate CoreOperationAnd [operation]
-  (map pipe-for-predicate (.getArguments operation)))
+  (AndFilterPipe. (map pipe-for-predicate (.getArguments operation))))
+
+(defmethod pipe-for-predicate CoreOperationOr [operation]
+  (OrFilterPipe. (map pipe-for-predicate (.getArguments operation))))
 
 (defmethod pipe-for-step "self" [_]
   (IdentityPipe.))

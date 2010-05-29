@@ -20,5 +20,5 @@
   (let [str-value (str constant)
         num-value (InfoSetUtil/doubleValue str-value)]
     (if (true? (.isNaN num-value))
-      (skip-quotes str-value) num-value)))
+      (skip-quotes str-value) (Float. num-value))))
 

@@ -36,3 +36,38 @@
       (is (= (.size results) 2))
       (is (= results '("vadas" "josh"))))))
 
+(deftest or-operation-in-predicates-test
+  (let [pipeline (compile-xpath "./outE[@label = 'created' or @weight >= 0.5]/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= results '("vadas" "lop" "josh"))))))
+
+(deftest advanced-or-operation-in-predicates-test
+  (let [pipeline (compile-xpath "./outE[@label='created' or (@label='knows' and @weight <= 0.5)]/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= results '("vadas" "lop"))))))
+
+(deftest greater-than-operation-in-predicates-test
+  (let [pipeline (compile-xpath "./outE[@weight > 0.5]/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= results '("josh"))))))
+
+(deftest less-than-operation-in-predicates-test
+  (let [pipeline (compile-xpath "./outE[@weight < 0.5]/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= results '("lop"))))))
+
+(deftest greater-than-or-equal-operation-in-predicates-test
+  (let [pipeline (compile-xpath "./outE[@weight >= 0.5]/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= results '("vadas" "josh"))))))
+
+(deftest less-than-or-equal-operation-in-predicates-test
+  (let [pipeline (compile-xpath "./outE[@weight <= 0.5]/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= results '("vadas" "lop"))))))
