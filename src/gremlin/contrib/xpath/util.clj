@@ -1,4 +1,6 @@
 (ns gremlin.contrib.xpath.util
+  #^{:author "Pavel A. Yaskevich"
+     :doc "Various compiler util functions."}
   (:import [org.apache.commons.jxpath.ri InfoSetUtil]
            [org.apache.commons.jxpath.ri.compiler Step]))
 

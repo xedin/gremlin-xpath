@@ -1,4 +1,6 @@
 (ns gremlin.contrib.xpath.enums
+  #^{:author "Pavel A. Yaskevich"
+     :doc "Pipes Enums."}
   (:import [gremlin.contrib.xpath.helpers PipesEnumHelper]))
 
 ;; gremlin pipes pgm enums

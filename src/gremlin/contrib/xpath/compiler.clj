@@ -1,4 +1,6 @@
 (ns gremlin.contrib.xpath.compiler
+  #^{:author "Pavel A. Yaskevich"
+     :doc "XPath to Pipes compiler."}
   (:use [gremlin.contrib.xpath.util]
         [gremlin.contrib.xpath.enums])
   (:import [com.tinkerpop.pipes.serial IdentityPipe Pipeline]
@@ -132,6 +134,11 @@
               (recur (conj sorted-coll current-pipe) (rest coll) false (inc pipe-idx) history-start-idx)))))))
 
 (defn compile-xpath [#^String xpath]
+  "Lets you compile XPath string into Pipeline.
+
+   Usage: (compile-xpath string)
+   (compile-xpath \"./outE[@label = 'knows' and @weight > 0.5]/inV/@name\")
+  "
   (let [compiler (TreeCompiler.)
         path (Parser/parseExpression xpath compiler)
         pipes (flatten (analize-path path))]
