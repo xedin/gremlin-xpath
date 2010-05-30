@@ -71,3 +71,15 @@
     (.setStarts pipeline (.iterator (list vertex)))
     (let [results (seq pipeline)]
       (is (= results '("vadas" "lop"))))))
+
+(deftest history-pipe-test
+  (let [pipeline (compile-xpath "./outE/inV/../../outE/../outE/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (= results '("vadas" "lop" "josh"))))))
+
+(deftest advanced-history-test
+    (let [pipeline (compile-xpath "./outE[@weight < 0.4]/../outE/inV/@name")]
+    (.setStarts pipeline (.iterator (list vertex)))
+    (let [results (seq pipeline)]
+      (is (nil? results)))))

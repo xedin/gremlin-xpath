@@ -3,7 +3,7 @@
         [gremlin.contrib.xpath.enums])
   (:import [com.tinkerpop.pipes.serial IdentityPipe Pipeline]
            [org.apache.commons.jxpath.ri Parser QName]
-           [com.tinkerpop.pipes.serial.filter AndFilterPipe OrFilterPipe]
+           [com.tinkerpop.pipes.serial.filter AndFilterPipe OrFilterPipe FutureFilterPipe]
            [com.tinkerpop.pipes.serial.pgm EdgeVertexPipe VertexEdgePipe LabelFilterPipe PropertyFilterPipe PropertyPipe]
            [org.apache.commons.jxpath.ri.compiler Path LocationPath ExpressionPath]
            [org.apache.commons.jxpath.ri.compiler TreeCompiler Expression Operation VariableReference Constant]
@@ -84,6 +84,8 @@
 (defmethod pipe-for-step "attribute" [step]
   (PropertyPipe. (step-token (.getNodeTest step))))
 
+(defmethod pipe-for-step "parent" [step] :history)
+
 (defn- create-pipe [step]
   [(pipe-for-step step) (map pipe-for-predicate (seq (.getPredicates step)))])
 
@@ -105,8 +107,32 @@
 (defmethod step-token ProcessingInstructionTest [node]
   '())
 
+(defn- with-history? [pipes]
+  (loop [lst-pipes pipes]
+    (let [pipe (first lst-pipes)]
+      (if (nil? pipe) false
+          (if (identical? pipe :history) true
+              (recur (rest lst-pipes)))))))
+
+(defn- pipeline-with-history [pipes]
+  (loop [sorted-coll [] coll pipes prev-was-history? false pipe-idx 0 history-start-idx 0]
+      (let [current-pipe (first coll)]
+        (if (nil? current-pipe)
+          (Pipeline. sorted-coll)
+          (if (identical? current-pipe :history)
+            (recur sorted-coll (rest coll) true pipe-idx history-start-idx)
+            (if (true? prev-was-history?)
+              (let [free-pipes (subvec sorted-coll 0 history-start-idx)
+                    history-pipes (if (= history-start-idx pipe-idx)
+                                    (subvec sorted-coll history-start-idx)
+                                    (subvec sorted-coll history-start-idx pipe-idx))
+                    history-pipeline (FutureFilterPipe. (Pipeline. (apply list history-pipes)))
+                    new-pipe-idx (inc (.size free-pipes))]
+                (recur (conj free-pipes history-pipeline current-pipe) (rest coll) false new-pipe-idx new-pipe-idx))
+              (recur (conj sorted-coll current-pipe) (rest coll) false (inc pipe-idx) history-start-idx)))))))
+
 (defn compile-xpath [#^String xpath]
   (let [compiler (TreeCompiler.)
         path (Parser/parseExpression xpath compiler)
         pipes (flatten (analize-path path))]
-    (Pipeline. pipes)))
+    (if (with-history? pipes) (pipeline-with-history pipes) (Pipeline. pipes))))
